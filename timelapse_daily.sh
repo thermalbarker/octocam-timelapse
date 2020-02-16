@@ -16,13 +16,34 @@ ls ${TODAY_DIR}/*.jpg | wc
 mkdir -p ${YEAR_DIR}
 mkdir -p ${YEAR_TIMELAPSE}
 
+# Calculate the files between sunrise and sunset
+SUNRISE=$(python ./sunrise.py | head -n 2 | tail -n 1)
+SUNSET=$(python ./sunrise.py | head -n 3 | tail -n 1)
+NOON=$(python ./sunrise.py | head -n 4 | tail -n 1)
+
+if [ "$SUNRISE" -eq "0" ]; then
+   SUNRISE=""
+else
+   SUNRISE="-mmin -$SUNRISE"
+fi
+
+if [ "$SUNSET" -eq "0" ]; then
+   SUNSET=""
+else
+   SUNSET="-mmin +$SUNSET"
+fi
+
+FILES=$(find $TODAY_DIR -name '*.jpg' $SUNRISE $SUNSET | sort)
+echo $FILES
+
 # Copy the snapshot from midday
+
 cp ${TODAY_DIR}/12-00*.jpg ${YEAR_TIMELAPSE}/${DATE_DIR}.jpg
 chmod a+rx ${YEAR_TIMELAPSE}/${DATE_DIR}.jpg
 
-#set -e
+set -e
 rm -f $TIMELAPSE_FILE
-cat ${TODAY_DIR}/*.jpg | ffmpeg -framerate 10  \
+cat $FILES | ffmpeg -framerate 10  \
        -f image2pipe \
        -vcodec mjpeg \
        -i -          \
@@ -47,18 +68,4 @@ cat ${YEAR_TIMELAPSE}/*.jpg | ffmpeg -framerate 5  \
        -b:v 9999999  \
        -qscale:v 0.1 \
        -f avi $TIMELAPSE_YEAR
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

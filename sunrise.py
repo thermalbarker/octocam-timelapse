@@ -11,6 +11,7 @@ import time as _time
 
 ZERO = timedelta(0)
 HOUR = timedelta(hours=1)
+SECONDS_PER_DAY = 24 * 60 * 60
 
 STDOFFSET = timedelta(seconds = -_time.timezone)
 if _time.daylight:
@@ -158,8 +159,24 @@ class sun:
   self.sunrise_t  =self.solarnoon_t-hourangle*4/1440
   self.sunset_t   =self.solarnoon_t+hourangle*4/1440
 
+def delta_minutes(difference):
+  return (difference.days * SECONDS_PER_DAY + difference.seconds) / 60
+
+def delta_minutes_now(t):
+  return delta_minutes(now - t)
+
+
+
 if __name__ == "__main__":
  s=sun()
  print(datetime.today())
- print(s.sunrise(),s.solarnoon(),s.sunset())
+
+ now = datetime.now()
+ beforesunrise = datetime.combine(date.today(), s.sunrise()) - HOUR 
+ aftersunset = datetime.combine(date.today(), s.sunset()) + HOUR
+ midday = datetime.combine(date.today(), s.solarnoon()) 
+
+ print(max(0, delta_minutes_now(beforesunrise)))
+ print(max(0, delta_minutes_now(aftersunset)))
+ print(max(0, delta_minutes_now(midday)))
 
