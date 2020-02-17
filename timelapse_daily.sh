@@ -17,9 +17,10 @@ mkdir -p ${YEAR_DIR}
 mkdir -p ${YEAR_TIMELAPSE}
 
 # Calculate the files between sunrise and sunset
-SUNRISE=$(python ./sunrise.py | head -n 2 | tail -n 1)
-SUNSET=$(python ./sunrise.py | head -n 3 | tail -n 1)
-NOON=$(python ./sunrise.py | head -n 4 | tail -n 1)
+python /data/output/scripts/sunrise.py > /tmp/suntimes.txt
+SUNRISE=$(cat /tmp/suntimes.txt | head -n 2 | tail -n 1)
+SUNSET=$(cat /tmp/suntimes.txt | head -n 3 | tail -n 1)
+NOON=$(cat /tmp/suntimes.txt | head -n 4 | tail -n 1)
 
 if [ "$SUNRISE" -eq "0" ]; then
    SUNRISE=""
