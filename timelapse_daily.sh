@@ -1,11 +1,12 @@
 #!/bin/bash
 
 BASE_DIR=/data/output/Camera1
+OUTPUT_DIR=/data/output/timelapse
 DATE_DIR=$(date +'%Y-%m-%d')
 TODAY_DIR="${BASE_DIR}/${DATE_DIR}"
 
-YEAR_DIR="${BASE_DIR}/$(date +'%Y')"
-YEAR_TIMELAPSE=${YEAR_DIR}/timelapse
+YEAR_DIR="${OUTPUT_DIR}/$(date +'%Y')"
+YEAR_TIMELAPSE=${YEAR_DIR}/stills
 
 TIMELAPSE_NAME=${DATE_DIR}-timelapse.avi
 TIMELAPSE_FILE="${YEAR_DIR}/${TIMELAPSE_NAME}"
@@ -15,6 +16,8 @@ ls ${TODAY_DIR}/*.jpg | wc
 
 mkdir -p ${YEAR_DIR}
 mkdir -p ${YEAR_TIMELAPSE}
+chmod a+rx ${YEAR_DIR}
+chmod a+rx ${YEAR_TIMELAPSE}
 
 # Calculate the files between sunrise and sunset
 python /data/output/scripts/sunrise.py > /tmp/suntimes.txt
@@ -42,7 +45,7 @@ echo $FILES
 cp ${TODAY_DIR}/12-00*.jpg ${YEAR_TIMELAPSE}/${DATE_DIR}.jpg
 chmod a+rx ${YEAR_TIMELAPSE}/${DATE_DIR}.jpg
 
-set -e
+#set -e
 rm -f $TIMELAPSE_FILE
 cat $FILES | ffmpeg -framerate 10  \
        -f image2pipe \
@@ -59,7 +62,7 @@ chmod a+rx $TIMELAPSE_FILE
 
 #rm -rf ${TODAY_DIR}/*.jpg
 
-TIMELAPSE_YEAR=${YEAR_TIMELAPSE}/$(date +'%Y')-timelapse.avi
+TIMELAPSE_YEAR=${YEAR_DIR}/$(date +'%Y')-timelapse.avi
 rm -f $TIMELAPSE_YEAR
 cat ${YEAR_TIMELAPSE}/*.jpg | ffmpeg -framerate 5  \
        -f image2pipe \
@@ -70,3 +73,4 @@ cat ${YEAR_TIMELAPSE}/*.jpg | ffmpeg -framerate 5  \
        -qscale:v 0.1 \
        -f avi $TIMELAPSE_YEAR
 
+chmod a+rx $TIMELAPSE_YEAR
